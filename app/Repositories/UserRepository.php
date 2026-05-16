@@ -44,6 +44,14 @@ class UserRepository implements UserRepositoryInterface
         return $stmt->fetch() ?: null;
     }
 
+    public function findRawById(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM users WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+
+        return $stmt->fetch() ?: null;
+    }
+
     public function emailExists(string $email): bool
     {
         $stmt = $this->db->prepare('SELECT 1 FROM users WHERE email = :email');
@@ -91,6 +99,24 @@ class UserRepository implements UserRepositoryInterface
 
         $stmt = $this->db->prepare("UPDATE users SET {$setClauses} WHERE id = :id");
         $stmt->execute($data);
+    }
+
+    public function updateEmail(int $id, string $email): void
+    {
+        $stmt = $this->db->prepare('UPDATE users SET email = :email WHERE id = :id');
+        $stmt->execute(['email' => $email, 'id' => $id]);
+    }
+
+    public function updatePasswordHash(int $id, string $hash): void
+    {
+        $stmt = $this->db->prepare('UPDATE users SET password_hash = :hash WHERE id = :id');
+        $stmt->execute(['hash' => $hash, 'id' => $id]);
+    }
+
+    public function delete(int $id): void
+    {
+        $stmt = $this->db->prepare('DELETE FROM users WHERE id = :id');
+        $stmt->execute(['id' => $id]);
     }
 
     public function search(string $query, int $excludeId, int $limit = 15): array

@@ -16,9 +16,16 @@ interface UserRepositoryInterface
     /** Returns raw row including password_hash — for auth verification only. */
     public function findCredentialsByEmail(string $email): ?array;
 
+    /** Returns raw row including password_hash by ID — for settings verification only. */
+    public function findRawById(int $id): ?array;
+
     public function create(array $data): int;
     public function update(int $id, array $data): void;
     public function updateLastSeen(int $id): void;
+
+    public function updateEmail(int $id, string $email): void;
+    public function updatePasswordHash(int $id, string $hash): void;
+    public function delete(int $id): void;
 
     /** Search users by username or display_name, excluding $excludeId. */
     public function search(string $query, int $excludeId, int $limit = 15): array;
