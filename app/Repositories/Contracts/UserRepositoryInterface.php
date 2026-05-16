@@ -19,4 +19,7 @@ interface UserRepositoryInterface
     public function create(array $data): int;
     public function update(int $id, array $data): void;
     public function updateLastSeen(int $id): void;
+
+    /** Search users by username or display_name, excluding $excludeId. */
+    public function search(string $query, int $excludeId, int $limit = 15): array;
 }
