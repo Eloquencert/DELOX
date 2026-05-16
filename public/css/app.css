@@ -167,3 +167,167 @@ body {
     color: var(--color-danger);
     margin-top: .25rem;
 }
+
+/* ─── App nav ────────────────────────────────────────────────── */
+.app-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1.5rem;
+    height: 56px;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+}
+
+.app-nav-brand {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-decoration: none;
+    margin-right: auto;
+}
+
+.app-nav-links { display: flex; gap: .25rem; }
+
+.nav-link {
+    padding: .4rem .85rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--color-secondary);
+    font-size: .9rem;
+    font-weight: 500;
+    transition: background .15s, color .15s;
+}
+
+.nav-link:hover { background: var(--color-bg); color: var(--color-text); }
+.nav-link.active { background: #eff6ff; color: var(--color-primary); }
+
+.app-nav-user {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-left: auto;
+}
+
+.nav-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.nav-avatar-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.nav-username {
+    font-size: .9rem;
+    font-weight: 500;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.nav-username:hover { color: var(--color-primary); }
+
+.btn-logout {
+    background: none;
+    border: none;
+    color: var(--color-secondary);
+    font-size: .85rem;
+    cursor: pointer;
+    padding: .3rem .6rem;
+    border-radius: var(--radius);
+    transition: background .15s;
+}
+
+.btn-logout:hover { background: var(--color-bg); color: var(--color-danger); }
+
+.app-main { padding: 2rem 1.5rem; }
+
+/* ─── Profile page ───────────────────────────────────────────── */
+.profile-page {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.profile-card {
+    background: var(--color-surface);
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--color-border);
+}
+
+.profile-avatar-wrap { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    font-size: 2.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.profile-info { text-align: center; margin-bottom: 1.5rem; }
+.profile-display-name { font-size: 1.5rem; font-weight: 700; }
+.profile-username { color: var(--color-muted); margin-top: .2rem; }
+.profile-bio  { margin-top: .75rem; color: var(--color-secondary); line-height: 1.6; }
+.profile-meta { margin-top: .75rem; font-size: .8rem; color: var(--color-muted); }
+
+.profile-actions { display: flex; justify-content: center; gap: .75rem; flex-wrap: wrap; }
+
+.profile-edit-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.25rem; }
+
+/* ─── Avatar upload ──────────────────────────────────────────── */
+.avatar-upload-form { display: flex; justify-content: center; }
+
+.avatar-upload-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
+}
+
+.avatar-upload-label {
+    font-size: .85rem;
+    color: var(--color-primary);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.avatar-upload-label:hover { text-decoration: underline; }
+.avatar-upload-input { display: none; }
+
+/* ─── Chats placeholder ──────────────────────────────────────── */
+.chats-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    min-height: 60vh;
+    text-align: center;
+    color: var(--color-secondary);
+}
+
+.placeholder-icon { font-size: 4rem; }
