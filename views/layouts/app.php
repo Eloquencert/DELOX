@@ -109,5 +109,12 @@
 
 </div>
 <script src="/DELOX/public/js/app.js"></script>
+<?php if (isset($activeChat) && $activeChat !== null): ?>
+    <script>
+        const CHAT_ID        = <?= (int) $activeChat->id ?>;
+        const CURRENT_USER_ID = <?= (int) $_SESSION['user_id'] ?>;
+    </script>
+    <script src="/DELOX/public/js/chat.js"></script>
+<?php endif; ?>
 </body>
 </html>
