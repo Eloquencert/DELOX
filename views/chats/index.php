@@ -1,8 +1,8 @@
-<div class="chats-placeholder">
-    <div class="placeholder-icon">💬</div>
-    <h2>Your Chats</h2>
-    <p>Chat list will appear here in the next feature.</p>
-    <a href="/DELOX/profile/<?= htmlspecialchars($currentUser->username) ?>" class="btn btn-ghost">
-        View My Profile
+<div class="chat-welcome">
+    <div class="chat-welcome-icon">💬</div>
+    <h2>DELOX Messenger</h2>
+    <p>Select a chat or start a new conversation</p>
+    <a href="/DELOX/chats/new" class="btn btn-primary" style="margin-top:.5rem">
+        New Message
     </a>
 </div>
