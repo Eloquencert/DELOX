@@ -17,5 +17,6 @@ interface UserRepositoryInterface
     public function findCredentialsByEmail(string $email): ?array;
 
     public function create(array $data): int;
+    public function update(int $id, array $data): void;
     public function updateLastSeen(int $id): void;
 }

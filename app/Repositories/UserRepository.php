@@ -77,6 +77,22 @@ class UserRepository implements UserRepositoryInterface
         return (int) $this->db->lastInsertId();
     }
 
+    public function update(int $id, array $data): void
+    {
+        $allowed = ['display_name', 'bio', 'avatar'];
+        $data    = array_intersect_key($data, array_flip($allowed));
+
+        if (empty($data)) {
+            return;
+        }
+
+        $setClauses = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data)));
+        $data['id'] = $id;
+
+        $stmt = $this->db->prepare("UPDATE users SET {$setClauses} WHERE id = :id");
+        $stmt->execute($data);
+    }
+
     public function updateLastSeen(int $id): void
     {
         $stmt = $this->db->prepare(

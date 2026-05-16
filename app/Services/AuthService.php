@@ -57,7 +57,10 @@ class AuthService
     public function login(User $user): void
     {
         session_regenerate_id(true);
-        $_SESSION['user_id'] = $user->id;
+        $_SESSION['user_id']      = $user->id;
+        $_SESSION['username']     = $user->username;
+        $_SESSION['display_name'] = $user->displayName;
+        $_SESSION['avatar']       = $user->avatar;
     }
 
     public function logout(): void
