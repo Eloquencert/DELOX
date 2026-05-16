@@ -59,12 +59,12 @@ class ChatRepository implements ChatRepositoryInterface
                     )
              LEFT JOIN chat_members cm2
                     ON cm2.chat_id = c.id
-                   AND cm2.user_id != :userId
+                   AND cm2.user_id != :userId2
                    AND c.type = \'private\'
              LEFT JOIN users u2 ON u2.id = cm2.user_id
              ORDER BY COALESCE(last_msg.created_at, c.created_at) DESC'
         );
-        $stmt->execute(['userId' => $userId]);
+        $stmt->execute(['userId' => $userId, 'userId2' => $userId]);
 
         return array_map([Chat::class, 'fromArray'], $stmt->fetchAll());
     }
@@ -79,11 +79,11 @@ class ChatRepository implements ChatRepositoryInterface
              FROM chats c
              INNER JOIN chat_members cm1 ON cm1.chat_id = c.id AND cm1.user_id = :u1
              INNER JOIN chat_members cm2 ON cm2.chat_id = c.id AND cm2.user_id = :u2
-             LEFT JOIN users u2 ON u2.id = :u2
+             LEFT JOIN users u2 ON u2.id = :u2b
              WHERE c.type = \'private\'
              LIMIT 1'
         );
-        $stmt->execute(['u1' => $userId1, 'u2' => $userId2]);
+        $stmt->execute(['u1' => $userId1, 'u2' => $userId2, 'u2b' => $userId2]);
         $row = $stmt->fetch();
 
         return $row ? Chat::fromArray($row) : null;

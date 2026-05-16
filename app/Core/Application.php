@@ -25,6 +25,7 @@ class Application
 
     private function registerRoutes(): void
     {
+        $router = $this->router;
         require ROUTES_PATH . '/web.php';
         require ROUTES_PATH . '/api.php';
     }

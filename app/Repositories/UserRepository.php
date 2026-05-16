@@ -124,12 +124,13 @@ class UserRepository implements UserRepositoryInterface
         $stmt = $this->db->prepare(
             'SELECT * FROM users
              WHERE id != :excludeId
-               AND (username LIKE :q OR display_name LIKE :q)
+               AND (username LIKE :q1 OR display_name LIKE :q2)
              ORDER BY display_name
              LIMIT :limit'
         );
         $stmt->bindValue('excludeId', $excludeId, PDO::PARAM_INT);
-        $stmt->bindValue('q', '%' . $query . '%');
+        $stmt->bindValue('q1', '%' . $query . '%');
+        $stmt->bindValue('q2', '%' . $query . '%');
         $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 

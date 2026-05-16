@@ -56,7 +56,8 @@ class UserService
             throw new RuntimeException('Upload failed. Please try again.');
         }
 
-        $mime = mime_content_type($file['tmp_name']);
+        $info = getimagesize($file['tmp_name']);
+        $mime = $info ? $info['mime'] : '';
 
         if (!in_array($mime, self::ALLOWED_MIME_TYPES, true)) {
             throw new RuntimeException('Only JPEG, PNG, GIF, and WebP images are allowed.');
