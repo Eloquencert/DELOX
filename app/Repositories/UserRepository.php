@@ -93,6 +93,23 @@ class UserRepository implements UserRepositoryInterface
         $stmt->execute($data);
     }
 
+    public function search(string $query, int $excludeId, int $limit = 15): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT * FROM users
+             WHERE id != :excludeId
+               AND (username LIKE :q OR display_name LIKE :q)
+             ORDER BY display_name
+             LIMIT :limit'
+        );
+        $stmt->bindValue('excludeId', $excludeId, PDO::PARAM_INT);
+        $stmt->bindValue('q', '%' . $query . '%');
+        $stmt->bindValue('limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return array_map([User::class, 'fromArray'], $stmt->fetchAll());
+    }
+
     public function updateLastSeen(int $id): void
     {
         $stmt = $this->db->prepare(
