@@ -1,0 +1,16 @@
+# Environment
+config/database.local.php
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Uploads (keep folder, not files)
+storage/uploads/avatars/*
+!storage/uploads/avatars/.gitkeep
