@@ -6,6 +6,7 @@ use App\Controllers\AuthController;
 use App\Controllers\ChatController;
 use App\Controllers\HomeController;
 use App\Controllers\ProfileController;
+use App\Controllers\SettingsController;
 
 /** @var \App\Core\Router $router */
 
@@ -24,6 +25,12 @@ $router->get('/chats',         [ChatController::class, 'index']);
 $router->get('/chats/new',     [ChatController::class, 'newChat']);
 $router->post('/chats',        [ChatController::class, 'store']);
 $router->get('/chats/:id',     [ChatController::class, 'show']);
+
+// ─── Settings ────────────────────────────────────────────────────────────────
+$router->get('/settings',          [SettingsController::class, 'index']);
+$router->post('/settings/email',   [SettingsController::class, 'updateEmail']);
+$router->post('/settings/password',[SettingsController::class, 'updatePassword']);
+$router->post('/settings/delete',  [SettingsController::class, 'deleteAccount']);
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
 $router->get('/profile/edit',      [ProfileController::class, 'edit']);
