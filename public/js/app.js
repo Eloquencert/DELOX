@@ -1,6 +1,5 @@
 'use strict';
 
-// Global app namespace
 const App = {
     baseUrl: '/DELOX',
 
@@ -15,3 +14,20 @@ const App = {
         }).then(res => res.json());
     },
 };
+
+// ─── Sidebar chat filter ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('chatSearch');
+    const chatItems   = document.querySelectorAll('.chat-item');
+
+    if (searchInput && chatItems.length) {
+        searchInput.addEventListener('input', () => {
+            const q = searchInput.value.toLowerCase().trim();
+
+            chatItems.forEach(item => {
+                const name = item.dataset.name ?? '';
+                item.style.display = (!q || name.includes(q)) ? '' : 'none';
+            });
+        });
+    }
+});

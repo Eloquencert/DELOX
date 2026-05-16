@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-// API routes will be registered here as features are added.
-// All API endpoints follow the /api/* convention.
+use App\Controllers\UserController;
 
 /** @var \App\Core\Router $router */
+
+$router->get('/api/users/search', [UserController::class, 'search']);
