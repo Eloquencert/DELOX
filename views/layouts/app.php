@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title ?? 'DELOX') ?> — DELOX</title>
+    <title><?php echo htmlspecialchars($title ?? 'DELOX') ?> — DELOX</title>
     <link rel="stylesheet" href="/DELOX/public/css/app.css">
 </head>
 <body class="app-body">
@@ -16,19 +16,19 @@
         <!-- Header -->
         <div class="sidebar-header">
             <div class="sidebar-me">
-                <?php if (!empty($_SESSION['avatar'])): ?>
+                <?php if (! empty($_SESSION['avatar'])): ?>
                     <img
-                        src="/DELOX/storage/uploads/avatars/<?= htmlspecialchars($_SESSION['avatar']) ?>"
+                        src="/DELOX/storage/uploads/avatars/<?php echo htmlspecialchars($_SESSION['avatar']) ?>"
                         class="sidebar-avatar"
                         alt="me"
                     >
                 <?php else: ?>
                     <div class="sidebar-avatar sidebar-avatar-initials">
-                        <?= mb_strtoupper(mb_substr($_SESSION['display_name'] ?? 'U', 0, 1)) ?>
+                        <?php echo mb_strtoupper(mb_substr($_SESSION['display_name'] ?? 'U', 0, 1)) ?>
                     </div>
                 <?php endif; ?>
-                <a href="/DELOX/profile/<?= htmlspecialchars($_SESSION['username'] ?? '') ?>" class="sidebar-me-name">
-                    <?= htmlspecialchars($_SESSION['display_name'] ?? '') ?>
+                <a href="/DELOX/profile/<?php echo htmlspecialchars($_SESSION['username'] ?? '') ?>" class="sidebar-me-name">
+                    <?php echo htmlspecialchars($_SESSION['display_name'] ?? '') ?>
                 </a>
             </div>
             <div class="sidebar-header-actions">
@@ -73,30 +73,30 @@
                 <?php foreach ($chats as $chat): ?>
                     <?php $isActive = isset($activeChat) && $activeChat->id === $chat->id; ?>
                     <a
-                        href="/DELOX/chats/<?= $chat->id ?>"
-                        class="chat-item <?= $isActive ? 'active' : '' ?>"
-                        data-name="<?= htmlspecialchars(mb_strtolower($chat->displayName())) ?>"
+                        href="/DELOX/chats/<?php echo $chat->id ?>"
+                        class="chat-item <?php echo $isActive ? 'active' : '' ?>"
+                        data-name="<?php echo htmlspecialchars(mb_strtolower($chat->displayName())) ?>"
                     >
                         <!-- Avatar -->
                         <div class="chat-item-avatar">
                             <?php if ($chat->avatarUrl()): ?>
-                                <img src="<?= htmlspecialchars($chat->avatarUrl()) ?>" alt="avatar">
+                                <img src="<?php echo htmlspecialchars($chat->avatarUrl()) ?>" alt="avatar">
                             <?php else: ?>
-                                <span><?= htmlspecialchars($chat->initial()) ?></span>
+                                <span><?php echo htmlspecialchars($chat->initial()) ?></span>
                             <?php endif; ?>
                         </div>
 
                         <!-- Body -->
                         <div class="chat-item-body">
                             <div class="chat-item-top">
-                                <span class="chat-item-name"><?= htmlspecialchars($chat->displayName()) ?></span>
+                                <span class="chat-item-name"><?php echo htmlspecialchars($chat->displayName()) ?></span>
                                 <?php if ($chat->lastMessageAt): ?>
-                                    <span class="chat-item-time"><?= DateHelper::chatTime($chat->lastMessageAt) ?></span>
+                                    <span class="chat-item-time"><?php echo DateHelper::chatTime($chat->lastMessageAt) ?></span>
                                 <?php endif; ?>
                             </div>
                             <div class="chat-item-preview">
-                                <?= $chat->lastMessage
-                                    ? htmlspecialchars(mb_substr($chat->lastMessage, 0, 60))
+                                <?php echo $chat->lastMessage
+                                        ? htmlspecialchars(mb_substr($chat->lastMessage, 0, 60))
                                     : '<em>No messages yet</em>' ?>
                             </div>
                         </div>
@@ -109,15 +109,15 @@
 
     <!-- ─── Main content ─────────────────────────────────────────── -->
     <main class="chat-content">
-        <?= $content ?>
+        <?php echo $content ?>
     </main>
 
 </div>
 <script src="/DELOX/public/js/app.js"></script>
 <?php if (isset($activeChat) && $activeChat !== null): ?>
     <script>
-        const CHAT_ID        = <?= (int) $activeChat->id ?>;
-        const CURRENT_USER_ID = <?= (int) $_SESSION['user_id'] ?>;
+        const CHAT_ID        = <?php echo (int) $activeChat->id ?>;
+        const CURRENT_USER_ID = <?php echo (int) $_SESSION['user_id'] ?>;
     </script>
     <script src="/DELOX/public/js/chat.js"></script>
 <?php endif; ?>

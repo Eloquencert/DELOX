@@ -25,7 +25,7 @@
     data-current-user-id="<?= $currentUser->id ?>"
 >
     <div class="chat-messages-empty">
-        <p>No messages yet. Say hi! 👋</p>
+        <p>No messages yet. Say hi!</p>
     </div>
 </div>
 

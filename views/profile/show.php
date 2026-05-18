@@ -1,8 +1,8 @@
 <?php
 
-use App\Helpers\Session;
+    use App\Helpers\Session;
 
-$flash = Session::getFlash('success');
+    $flash = Session::getFlash('success');
 ?>
 
 <div class="profile-page">
@@ -11,32 +11,32 @@ $flash = Session::getFlash('success');
         <div class="profile-avatar-wrap">
             <?php if ($user->avatar): ?>
                 <img
-                    src="/DELOX/storage/uploads/avatars/<?= htmlspecialchars($user->avatar) ?>"
-                    alt="<?= htmlspecialchars($user->displayName) ?>"
+                    src="/DELOX/storage/uploads/avatars/<?php echo htmlspecialchars($user->avatar) ?>"
+                    alt="<?php echo htmlspecialchars($user->displayName) ?>"
                     class="profile-avatar"
                 >
             <?php else: ?>
                 <div class="profile-avatar profile-avatar-initials">
-                    <?= mb_strtoupper(mb_substr($user->displayName, 0, 1)) ?>
+                    <?php echo mb_strtoupper(mb_substr($user->displayName, 0, 1)) ?>
                 </div>
             <?php endif; ?>
         </div>
 
         <div class="profile-info">
-            <h1 class="profile-display-name"><?= htmlspecialchars($user->displayName) ?></h1>
-            <p class="profile-username">@<?= htmlspecialchars($user->username) ?></p>
+            <h1 class="profile-display-name"><?php echo htmlspecialchars($user->displayName) ?></h1>
+            <p class="profile-username">@<?php echo htmlspecialchars($user->username) ?></p>
 
             <?php if ($user->bio): ?>
-                <p class="profile-bio"><?= nl2br(htmlspecialchars($user->bio)) ?></p>
+                <p class="profile-bio"><?php echo nl2br(htmlspecialchars($user->bio)) ?></p>
             <?php endif; ?>
 
             <p class="profile-meta">
-                Member since <?= date('F Y', strtotime($user->createdAt)) ?>
+                Member since <?php echo date('F Y', strtotime($user->createdAt)) ?>
             </p>
         </div>
 
         <?php if ($flash): ?>
-            <div class="alert alert-success"><?= htmlspecialchars($flash) ?></div>
+            <div class="alert alert-success"><?php echo htmlspecialchars($flash) ?></div>
         <?php endif; ?>
 
         <div class="profile-actions">

@@ -1,18 +1,18 @@
 <?php
 
-use App\Helpers\Session;
+    use App\Helpers\Session;
 
-$success       = Session::getFlash('success');
-$emailError    = Session::getFlash('email_error');
-$emailErrors   = Session::getFlash('email_errors', []);
-$passwordError = Session::getFlash('password_error');
-$passwordErrors= Session::getFlash('password_errors', []);
-$deleteError   = Session::getFlash('delete_error');
+    $success        = Session::getFlash('success');
+    $emailError     = Session::getFlash('email_error');
+    $emailErrors    = Session::getFlash('email_errors', []);
+    $passwordError  = Session::getFlash('password_error');
+    $passwordErrors = Session::getFlash('password_errors', []);
+    $deleteError    = Session::getFlash('delete_error');
 
-$fe = fn(array $errs, string $field): string =>
+    $fe = fn(array $errs, string $field): string =>
     isset($errs[$field])
-        ? '<span class="field-error">' . htmlspecialchars($errs[$field]) . '</span>'
-        : '';
+    ? '<span class="field-error">' . htmlspecialchars($errs[$field]) . '</span>'
+    : '';
 ?>
 
 <div class="settings-page">
@@ -26,7 +26,7 @@ $fe = fn(array $errs, string $field): string =>
     <div class="settings-content">
 
         <?php if ($success): ?>
-            <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+            <div class="alert alert-success"><?php echo htmlspecialchars($success) ?></div>
         <?php endif; ?>
 
         <!-- ─── Profile ─────────────────────────────────────────────── -->
@@ -37,18 +37,18 @@ $fe = fn(array $errs, string $field): string =>
                 <div class="settings-avatar">
                     <?php if ($currentUser->avatar): ?>
                         <img
-                            src="/DELOX/storage/uploads/avatars/<?= htmlspecialchars($currentUser->avatar) ?>"
+                            src="/DELOX/storage/uploads/avatars/<?php echo htmlspecialchars($currentUser->avatar) ?>"
                             alt="avatar"
                         >
                     <?php else: ?>
-                        <span><?= mb_strtoupper(mb_substr($currentUser->displayName, 0, 1)) ?></span>
+                        <span><?php echo mb_strtoupper(mb_substr($currentUser->displayName, 0, 1)) ?></span>
                     <?php endif; ?>
                 </div>
                 <div>
-                    <p class="settings-name"><?= htmlspecialchars($currentUser->displayName) ?></p>
-                    <p class="settings-username">@<?= htmlspecialchars($currentUser->username) ?></p>
+                    <p class="settings-name"><?php echo htmlspecialchars($currentUser->displayName) ?></p>
+                    <p class="settings-username">@<?php echo htmlspecialchars($currentUser->username) ?></p>
                     <?php if ($currentUser->bio): ?>
-                        <p class="settings-bio"><?= htmlspecialchars($currentUser->bio) ?></p>
+                        <p class="settings-bio"><?php echo htmlspecialchars($currentUser->bio) ?></p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -67,10 +67,10 @@ $fe = fn(array $errs, string $field): string =>
             <!-- Change Email -->
             <div class="settings-card">
                 <h4 class="settings-card-title">Change Email</h4>
-                <p class="settings-card-sub">Current: <strong><?= htmlspecialchars($currentUser->email) ?></strong></p>
+                <p class="settings-card-sub">Current: <strong><?php echo htmlspecialchars($currentUser->email) ?></strong></p>
 
                 <?php if ($emailError): ?>
-                    <div class="alert alert-error"><?= htmlspecialchars($emailError) ?></div>
+                    <div class="alert alert-error"><?php echo htmlspecialchars($emailError) ?></div>
                 <?php endif; ?>
 
                 <form action="/DELOX/settings/email" method="POST" class="settings-form">
@@ -80,11 +80,11 @@ $fe = fn(array $errs, string $field): string =>
                             type="email"
                             id="email"
                             name="email"
-                            class="form-control <?= isset($emailErrors['email']) ? 'is-invalid' : '' ?>"
+                            class="form-control <?php echo isset($emailErrors['email']) ? 'is-invalid' : '' ?>"
                             placeholder="new@example.com"
                             required
                         >
-                        <?= $fe($emailErrors, 'email') ?>
+                        <?php echo $fe($emailErrors, 'email') ?>
                     </div>
                     <div class="form-group">
                         <label for="email_password">Confirm with Password</label>
@@ -92,11 +92,11 @@ $fe = fn(array $errs, string $field): string =>
                             type="password"
                             id="email_password"
                             name="password"
-                            class="form-control <?= isset($emailErrors['password']) ? 'is-invalid' : '' ?>"
+                            class="form-control <?php echo isset($emailErrors['password']) ? 'is-invalid' : '' ?>"
                             placeholder="Your current password"
                             required
                         >
-                        <?= $fe($emailErrors, 'password') ?>
+                        <?php echo $fe($emailErrors, 'password') ?>
                     </div>
                     <button type="submit" class="btn btn-primary">Update Email</button>
                 </form>
@@ -107,7 +107,7 @@ $fe = fn(array $errs, string $field): string =>
                 <h4 class="settings-card-title">Change Password</h4>
 
                 <?php if ($passwordError): ?>
-                    <div class="alert alert-error"><?= htmlspecialchars($passwordError) ?></div>
+                    <div class="alert alert-error"><?php echo htmlspecialchars($passwordError) ?></div>
                 <?php endif; ?>
 
                 <form action="/DELOX/settings/password" method="POST" class="settings-form">
@@ -117,10 +117,10 @@ $fe = fn(array $errs, string $field): string =>
                             type="password"
                             id="current_password"
                             name="current_password"
-                            class="form-control <?= isset($passwordErrors['current_password']) ? 'is-invalid' : '' ?>"
+                            class="form-control <?php echo isset($passwordErrors['current_password']) ? 'is-invalid' : '' ?>"
                             required
                         >
-                        <?= $fe($passwordErrors, 'current_password') ?>
+                        <?php echo $fe($passwordErrors, 'current_password') ?>
                     </div>
                     <div class="form-group">
                         <label for="new_password">New Password</label>
@@ -128,11 +128,11 @@ $fe = fn(array $errs, string $field): string =>
                             type="password"
                             id="new_password"
                             name="new_password"
-                            class="form-control <?= isset($passwordErrors['new_password']) ? 'is-invalid' : '' ?>"
+                            class="form-control <?php echo isset($passwordErrors['new_password']) ? 'is-invalid' : '' ?>"
                             placeholder="Min. 8 characters"
                             required
                         >
-                        <?= $fe($passwordErrors, 'new_password') ?>
+                        <?php echo $fe($passwordErrors, 'new_password') ?>
                     </div>
                     <div class="form-group">
                         <label for="confirm_password">Confirm New Password</label>
@@ -163,7 +163,7 @@ $fe = fn(array $errs, string $field): string =>
                 </p>
 
                 <?php if ($deleteError): ?>
-                    <div class="alert alert-error"><?= htmlspecialchars($deleteError) ?></div>
+                    <div class="alert alert-error"><?php echo htmlspecialchars($deleteError) ?></div>
                 <?php endif; ?>
 
                 <form
