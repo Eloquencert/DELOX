@@ -13,10 +13,8 @@ interface UserRepositoryInterface
     public function emailExists(string $email): bool;
     public function usernameExists(string $username): bool;
 
-    /** Returns raw row including password_hash — for auth verification only. */
     public function findCredentialsByEmail(string $email): ?array;
 
-    /** Returns raw row including password_hash by ID — for settings verification only. */
     public function findRawById(int $id): ?array;
 
     public function create(array $data): int;

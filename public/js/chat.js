@@ -74,7 +74,7 @@
 
                 if (shouldScroll) scrollToBottom(true);
             })
-            .catch(() => {}); // silent on network error — next tick will retry
+            .catch(() => {}); 
     }
 
     // ─── Send message ─────────────────────────────────────────────────────────
@@ -99,7 +99,7 @@
             }
         })
         .catch(() => {
-            inputEl.value = content; // restore on failure
+            inputEl.value = content; 
         })
         .finally(() => {
             isSending        = false;
@@ -121,6 +121,6 @@
 
     // ─── Bootstrap ───────────────────────────────────────────────────────────
     inputEl.focus();
-    poll();                            // initial load
-    setInterval(poll, 2000);          // poll every 2 s
+    poll();                       
+    setInterval(poll, 2000);        
 }());

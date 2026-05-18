@@ -18,17 +18,11 @@ class MessageService
         private readonly ChatRepositoryInterface    $chats,
     ) {}
 
-    /** @return Message[] */
     public function getMessages(int $chatId, int $after = 0, int $limit = 50): array
     {
         return $this->messages->findByChatId($chatId, $after, $limit);
     }
 
-    /**
-     * Validate access and content, then persist and return the new message.
-     *
-     * @throws RuntimeException on access violation or empty/too-long content
-     */
     public function send(int $chatId, int $senderId, string $content): Message
     {
         if (!$this->chats->isMember($chatId, $senderId)) {

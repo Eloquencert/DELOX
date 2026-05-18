@@ -6,7 +6,6 @@ namespace App\Helpers;
 
 class DateHelper
 {
-    /** Returns a short timestamp string for chat list items (Telegram-style). */
     public static function chatTime(?string $datetime): string
     {
         if (!$datetime) {

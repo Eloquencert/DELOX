@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
-/** Ensures the request comes from an authenticated user. */
 class AuthMiddleware
 {
     public static function handle(): void

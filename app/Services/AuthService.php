@@ -14,11 +14,6 @@ class AuthService
         private readonly UserRepositoryInterface $users,
     ) {}
 
-    /**
-     * Register a new user and return the created entity.
-     *
-     * @throws RuntimeException when email or username is already taken
-     */
     public function register(string $username, string $email, string $password): User
     {
         if ($this->users->emailExists($email)) {
@@ -39,9 +34,6 @@ class AuthService
         return $this->users->findById($id);
     }
 
-    /**
-     * Verify credentials and return the User, or null on failure.
-     */
     public function attempt(string $email, string $password): ?User
     {
         $row = $this->users->findCredentialsByEmail($email);
@@ -53,7 +45,6 @@ class AuthService
         return User::fromArray($row);
     }
 
-    /** Persist the authenticated user in the session. */
     public function login(User $user): void
     {
         session_regenerate_id(true);

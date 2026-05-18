@@ -1,11 +1,9 @@
-Options -Indexes
-
 RewriteEngine On
 RewriteBase /DELOX/
 
-# Serve existing files and directories directly
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Якщо запит йде до самої кореневої папки, одразу перенаправляємо в public/
+RewriteRule ^$ public/index.php [L]
 
-# Route everything else through public/index.php
+# Для всіх інших запитів: якщо це НЕ реальний файл, шлемо в public/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ public/index.php [QSA,L]

@@ -12,12 +12,6 @@ class SettingsService
     public function __construct(
         private readonly UserRepositoryInterface $users,
     ) {}
-
-    /**
-     * Change the user's email after verifying their current password.
-     *
-     * @throws RuntimeException on wrong password or duplicate email
-     */
     public function changeEmail(int $userId, string $newEmail, string $password): void
     {
         $this->verifyPassword($userId, $password);

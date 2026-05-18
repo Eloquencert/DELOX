@@ -8,7 +8,6 @@ use App\Controllers\HomeController;
 use App\Controllers\ProfileController;
 use App\Controllers\SettingsController;
 
-/** @var \App\Core\Router $router */
 
 // ─── Public ───────────────────────────────────────────────────────────────────
 $router->get('/', [HomeController::class, 'index']);

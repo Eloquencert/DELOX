@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
-/** Redirects already-authenticated users away from guest-only pages. */
 class GuestMiddleware
 {
     public static function handle(): void

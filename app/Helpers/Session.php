@@ -26,13 +26,11 @@ class Session
         unset($_SESSION[$key]);
     }
 
-    /** Store a value that is consumed once on the next request. */
     public static function flash(string $key, mixed $value): void
     {
         $_SESSION['_flash'][$key] = $value;
     }
 
-    /** Read and remove a flash value. */
     public static function getFlash(string $key, mixed $default = null): mixed
     {
         $value = $_SESSION['_flash'][$key] ?? $default;

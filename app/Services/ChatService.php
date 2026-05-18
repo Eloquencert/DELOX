@@ -14,7 +14,6 @@ class ChatService
         private readonly ChatRepositoryInterface $chats,
     ) {}
 
-    /** @return Chat[] */
     public function getUserChats(int $userId): array
     {
         return $this->chats->findByUser($userId);
@@ -25,11 +24,6 @@ class ChatService
         return $this->chats->findById($chatId, $viewerId);
     }
 
-    /**
-     * Returns an existing private chat or creates a new one.
-     *
-     * @throws RuntimeException when trying to chat with yourself
-     */
     public function createPrivateChat(int $userId, int $otherUserId): Chat
     {
         if ($userId === $otherUserId) {

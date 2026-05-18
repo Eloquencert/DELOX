@@ -48,7 +48,6 @@ class Router
                 continue;
             }
 
-            // Extract named URL params (e.g. :id → $matches['id'])
             $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
 
             [$controllerClass, $action] = $route['handler'];
@@ -67,7 +66,6 @@ class Router
 
     private function pathToPattern(string $path): string
     {
-        // Convert :param segments into named regex groups
         $pattern = preg_replace('#:([a-zA-Z_]+)#', '(?P<$1>[^/]+)', $path);
         return '#^' . $pattern . '$#';
     }

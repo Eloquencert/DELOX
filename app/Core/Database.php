@@ -48,8 +48,6 @@ class Database
     {
         return $this->connection;
     }
-
-    // Prevent cloning and unserialization of the Singleton
     private function __clone() {}
     public function __wakeup(): never
     {

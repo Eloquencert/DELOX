@@ -31,7 +31,6 @@ class Request
         $uri  = $this->server['REQUEST_URI'] ?? '/';
         $path = parse_url($uri, PHP_URL_PATH);
 
-        // Strip the base path so routes work in a subdirectory
         $scriptName = $this->server['SCRIPT_NAME'] ?? '';
         $base = rtrim(dirname(dirname($scriptName)), '/');
         if ($base !== '' && $base !== '/' && str_starts_with($path, $base)) {

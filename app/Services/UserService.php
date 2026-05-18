@@ -11,7 +11,7 @@ use RuntimeException;
 class UserService
 {
     private const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    private const MAX_AVATAR_SIZE    = 2 * 1024 * 1024; // 2 MB
+    private const MAX_AVATAR_SIZE    = 2 * 1024 * 1024;
 
     public function __construct(
         private readonly UserRepositoryInterface $users,
@@ -24,7 +24,6 @@ class UserService
             'bio'          => $bio,
         ]);
 
-        // Keep session in sync so the nav bar reflects changes immediately
         $_SESSION['display_name'] = $displayName;
 
         return $this->users->findById($userId);
@@ -44,7 +43,6 @@ class UserService
 
         $this->users->update($userId, ['avatar' => $filename]);
 
-        // Keep session in sync
         $_SESSION['avatar'] = $filename;
 
         return $this->users->findById($userId);
