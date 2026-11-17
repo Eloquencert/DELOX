@@ -1,0 +1,12 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "wsl.exe",
+            "args": [
+                "/home/eloquencert/.config/herd-lite/bin/php",
+                "/home/eloquencert/projects/delox/artisan",
+                "boost:mcp"
+            ]
+        }
+    }
+}
