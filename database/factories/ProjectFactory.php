@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Project;
+use App\Models\Workspace;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +21,10 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'workspace_id' => Workspace::factory(),
+            'name' => fake()->words(3, true),
+            'key' => fake()->unique()->regexify('[A-Z]{3,6}'),
+            'description' => fake()->optional()->paragraph(),
         ];
     }
 }

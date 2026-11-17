@@ -1,4 +1,79 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 @import 'tailwindcss';
+
+@theme {
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+
+    --color-canvas: #efefef;
+    --color-surface: #ffffff;
+    --color-surface-subtle: #f7f6f4;
+    --color-border: #e2dfda;
+    --color-border-subtle: #e5e2dc;
+    --color-sage: #9dbeb5;
+    --color-sage-hover: #89afa5;
+    --color-sand: #d8b9a9;
+    --color-sand-hover: #cca794;
+    --color-ink: #1f2421;
+    --color-ink-body: #373d3a;
+    --color-ink-muted: #6b726e;
+    --color-rust: #c96a50;
+}
+
+@layer base {
+    input:not([type='checkbox']):not([type='radio']),
+    select,
+    textarea {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    @apply bg-canvas font-sans text-ink-body antialiased;
+
+    font-feature-settings: 'cv11', 'ss01', 'tnum';
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+}
+
+* {
+    scrollbar-color: #d6d3cd transparent;
+    scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background: #d6d3cd;
+    background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: #9dbeb5;
+    background-clip: padding-box;
+}
+
+@keyframes drawer-in {
+    from {
+        opacity: 0;
+        transform: translateX(1rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

@@ -16,15 +16,20 @@ export default function VerifyEmail({ status }: { status?: string }) {
         <GuestLayout>
             <Head title="Email Verification" />
 
-            <div className="mb-4 text-sm text-gray-600">
-                Thanks for signing up! Before getting started, could you verify
-                your email address by clicking on the link we just emailed to
-                you? If you didn't receive the email, we will gladly send you
-                another.
+            <div className="mb-6">
+                <h1 className="text-2xl font-semibold tracking-tight text-ink">
+                    Check your inbox
+                </h1>
+                <p className="mt-2 text-sm leading-6 text-ink-muted">
+                    Thanks for signing up! Before getting started, could you
+                    verify your email address by clicking on the link we just
+                    emailed to you? If you didn&apos;t receive the email, we
+                    will gladly send you another.
+                </p>
             </div>
 
             {status === 'verification-link-sent' && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div className="mb-4 rounded-xl bg-sage/20 px-4 py-3 text-sm font-medium text-[#25443c]">
                     A new verification link has been sent to the email address
                     you provided during registration.
                 </div>
@@ -40,7 +45,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                         href={route('logout')}
                         method="post"
                         as="button"
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="rounded-lg text-sm font-medium text-ink-muted underline decoration-sand decoration-2 underline-offset-4 transition hover:text-ink focus:outline-none focus:ring-2 focus:ring-sage focus:ring-offset-2"
                     >
                         Log Out
                     </Link>

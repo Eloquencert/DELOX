@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Auth;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -25,7 +28,13 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertAuthenticated();
+
+        $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+        $workspace = $user->ownedWorkspaces()->firstOrFail();
+
+        $this->assertSame("{$user->name}'s Workspace", $workspace->name);
+        $this->assertSame('owner', $user->workspaces()->firstOrFail()->pivot->role);
     }
 }

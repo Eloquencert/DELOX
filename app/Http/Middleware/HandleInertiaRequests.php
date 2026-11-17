@@ -33,6 +33,14 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+                'workspaces' => fn () => $request->user()
+                    ? $request->user()->workspaces()
+                        ->orderBy('name')
+                        ->get(['workspaces.id', 'name', 'slug'])
+                    : [],
+            ],
+            'flash' => [
+                'success' => fn (): ?string => $request->session()->get('success'),
             ],
         ];
     }
