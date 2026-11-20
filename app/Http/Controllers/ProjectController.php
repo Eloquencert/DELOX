@@ -7,16 +7,46 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
+use App\Models\User;
 use App\Models\Workspace;
+use App\Services\ActivityLogger;
 use App\Services\FractionalIndexingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
-    public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
-    {
-        $project->update($request->validated());
+    public function update(
+        UpdateProjectRequest $request,
+        Project $project,
+        ActivityLogger $activityLogger,
+    ): RedirectResponse {
+        $data = $request->validated();
+        $changedFields = [];
+
+        foreach ($data as $field => $value) {
+            $originalValue = $project->getRawOriginal($field);
+            $normalizedOriginal = $originalValue === null ? null : (string) $originalValue;
+            $normalizedValue = $value === null ? null : (string) $value;
+
+            if ($normalizedOriginal !== $normalizedValue) {
+                $changedFields[] = $field;
+            }
+        }
+
+        $project->update($data);
+
+        if ($changedFields !== []) {
+            /** @var User $user */
+            $user = $request->user();
+            $activityLogger->record(
+                $user,
+                $project,
+                'project.updated',
+                'Updated project details: '.implode(', ', $changedFields).'.',
+                properties: ['fields' => $changedFields],
+            );
+        }
 
         return to_route('projects.board', $project)
             ->with('success', 'Project updated.');
@@ -37,6 +67,7 @@ class ProjectController extends Controller
         StoreProjectRequest $request,
         Workspace $workspace,
         FractionalIndexingService $indexing,
+        ActivityLogger $activityLogger,
     ): RedirectResponse {
         $data = $request->validated();
 
@@ -52,6 +83,15 @@ class ProjectController extends Controller
 
             return $project;
         });
+
+        /** @var User $user */
+        $user = $request->user();
+        $activityLogger->record(
+            $user,
+            $project,
+            'project.created',
+            "Created project {$project->name}.",
+        );
 
         return to_route('projects.board', $project);
     }

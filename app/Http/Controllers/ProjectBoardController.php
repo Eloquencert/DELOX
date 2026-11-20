@@ -26,6 +26,21 @@ class ProjectBoardController extends Controller
             'project' => $project->only(['id', 'name', 'key', 'description', 'workspace_id']),
             'columns' => $project->columns,
             'members' => $project->workspace->users()->orderBy('name')->get(['users.id', 'users.name']),
+            'activities' => $project->activities()
+                ->with('user:id,name')
+                ->latest()
+                ->orderByDesc('id')
+                ->limit(50)
+                ->get([
+                    'id',
+                    'project_id',
+                    'task_id',
+                    'user_id',
+                    'action',
+                    'description',
+                    'properties',
+                    'created_at',
+                ]),
             'canManageProjects' => $request->user()->can('update', $project),
         ]);
     }

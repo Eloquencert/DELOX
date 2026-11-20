@@ -11,8 +11,11 @@ use App\Http\Requests\MoveColumnRequest;
 use App\Http\Requests\StoreColumnRequest;
 use App\Models\Column;
 use App\Models\Project;
+use App\Models\User;
+use App\Services\ActivityLogger;
 use App\Services\FractionalIndexingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ColumnController extends Controller
@@ -21,12 +24,22 @@ class ColumnController extends Controller
         StoreColumnRequest $request,
         Project $project,
         FractionalIndexingService $indexing,
+        ActivityLogger $activityLogger,
     ): JsonResponse {
         $previousPosition = $project->columns()->reorder('position', 'desc')->value('position');
         $column = $project->columns()->create([
             'name' => $request->validated('name'),
             'position' => $indexing->generateKeyBetween($previousPosition, null),
         ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $activityLogger->record(
+            $user,
+            $project,
+            'column.created',
+            "Created column \"{$column->name}\".",
+        );
 
         broadcast(new ColumnCreated($column))->toOthers();
 
@@ -37,8 +50,10 @@ class ColumnController extends Controller
         MoveColumnRequest $request,
         Column $column,
         FractionalIndexingService $indexing,
+        ActivityLogger $activityLogger,
     ): JsonResponse {
         $data = $request->validated();
+        $previousPosition = $column->position;
 
         $column = DB::transaction(function () use ($column, $data, $indexing): Column {
             $lockedColumn = Column::query()->lockForUpdate()->findOrFail($column->getKey());
@@ -62,17 +77,45 @@ class ColumnController extends Controller
             return $lockedColumn;
         });
 
+        if ($column->position !== $previousPosition) {
+            $column->loadMissing('project:id,key');
+
+            /** @var User $user */
+            $user = $request->user();
+            $activityLogger->record(
+                $user,
+                $column->project,
+                'column.reordered',
+                "Reordered column \"{$column->name}\".",
+            );
+        }
+
         broadcast(new ColumnMoved($column))->toOthers();
 
         return response()->json(['column' => $column]);
     }
 
-    public function destroy(Column $column): JsonResponse
-    {
+    public function destroy(
+        Request $request,
+        Column $column,
+        ActivityLogger $activityLogger,
+    ): JsonResponse {
         $this->authorize('delete', $column);
 
         $projectId = (int) $column->project_id;
         $columnId = (int) $column->getKey();
+        $column->loadMissing('project:id,key');
+
+        /** @var User $user */
+        $user = $request->user();
+        $activityLogger->record(
+            $user,
+            $column->project,
+            'column.deleted',
+            "Deleted column \"{$column->name}\".",
+            properties: ['task_count' => $column->tasks()->count()],
+        );
+
         $column->delete();
 
         broadcast(new ColumnDeleted($projectId, $columnId))->toOthers();

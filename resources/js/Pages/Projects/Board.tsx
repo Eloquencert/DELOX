@@ -1,3 +1,4 @@
+import ActivityFeed from '@/Components/ActivityFeed';
 import BoardColumn from '@/Components/BoardColumn';
 import TaskDetailDrawer from '@/Components/TaskDetailDrawer';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -5,6 +6,7 @@ import { useBoardStore } from '@/stores/useBoardStore';
 import {
     BoardColumn as BoardColumnType,
     BoardTask,
+    ProjectActivity,
     ProjectBoard,
     TaskPriority,
     User,
@@ -23,14 +25,15 @@ import {
     sortableKeyboardCoordinates,
     horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, usePoll } from '@inertiajs/react';
 import axios from 'axios';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { Pencil, Trash2, X } from 'lucide-react';
+import { History, Pencil, Trash2, X } from 'lucide-react';
 
 interface BoardPageProps {
     project: ProjectBoard;
     columns: BoardColumnType[];
+    activities: ProjectActivity[];
     members: User[];
     canManageProjects: boolean;
 }
@@ -65,6 +68,7 @@ const priorityFilterStyles: Record<TaskPriority, string> = {
 export default function Board({
     project,
     columns,
+    activities,
     members,
     canManageProjects,
 }: BoardPageProps) {
@@ -92,6 +96,15 @@ export default function Board({
     const [newColumnName, setNewColumnName] = useState('');
     const [creatingColumn, setCreatingColumn] = useState(false);
     const [editingProject, setEditingProject] = useState(false);
+    const [activityOpen, setActivityOpen] = useState(false);
+    const { start: startActivityPolling, stop: stopActivityPolling } = usePoll(
+        30_000,
+        { only: ['activities'] },
+        { autoStart: false },
+    );
+    const requestedTaskId = new URLSearchParams(window.location.search).get(
+        'task_id',
+    );
     const projectForm = useForm({
         name: project.name,
         key: project.key,
@@ -101,6 +114,31 @@ export default function Board({
     useEffect(() => {
         setColumns(columns);
     }, [columns, setColumns]);
+
+    useEffect(() => {
+        if (requestedTaskId === null) {
+            return;
+        }
+
+        const taskId = Number(requestedTaskId);
+        const taskExists = columns.some((column) =>
+            column.tasks.some((task) => task.id === taskId),
+        );
+
+        if (Number.isSafeInteger(taskId) && taskExists) {
+            setActiveTaskId(taskId);
+        }
+    }, [columns, requestedTaskId, setActiveTaskId]);
+
+    useEffect(() => {
+        if (activityOpen) {
+            startActivityPolling();
+        } else {
+            stopActivityPolling();
+        }
+
+        return stopActivityPolling;
+    }, [activityOpen, startActivityPolling, stopActivityPolling]);
 
     useEffect(() => {
         const echo = window.Echo;
@@ -342,6 +380,11 @@ export default function Board({
         router.delete(route('projects.destroy', { project: project.id }));
     };
 
+    const openActivityFeed = () => {
+        setActivityOpen(true);
+        router.reload({ only: ['activities'] });
+    };
+
     return (
         <AuthenticatedLayout>
             <Head title={`${project.key} · ${project.name}`} />
@@ -470,11 +513,20 @@ export default function Board({
                         <p className="text-xs text-ink-muted">
                             Keep work moving, together.
                         </p>
-                        {canManageProjects && (
-                            <form
-                                onSubmit={createColumn}
-                                className="flex items-center gap-2"
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={openActivityFeed}
+                                className="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-3 py-2.5 text-sm font-semibold text-ink-body transition hover:border-sage hover:bg-sage/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/50"
                             >
+                                <History size={15} aria-hidden="true" />
+                                Activity
+                            </button>
+                            {canManageProjects && (
+                                <form
+                                    onSubmit={createColumn}
+                                    className="flex items-center gap-2"
+                                >
                                 <label
                                     htmlFor="new-column-name"
                                     className="sr-only"
@@ -501,8 +553,9 @@ export default function Board({
                                     <span aria-hidden="true">+</span>
                                     Add Column
                                 </button>
-                            </form>
-                        )}
+                                </form>
+                            )}
+                        </div>
                     </div>
 
                     <DndContext
@@ -539,6 +592,17 @@ export default function Board({
                     </DndContext>
                 </div>
             </main>
+
+            {activityOpen && (
+                <ActivityFeed
+                    activities={activities}
+                    onClose={() => setActivityOpen(false)}
+                    onSelectTask={(taskId) => {
+                        setActivityOpen(false);
+                        setActiveTaskId(taskId);
+                    }}
+                />
+            )}
 
             <TaskDetailDrawer
                 task={selectedTask}

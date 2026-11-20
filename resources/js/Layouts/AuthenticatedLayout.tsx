@@ -1,8 +1,14 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
+import NotificationBell from '@/Components/NotificationBell';
 import { PageProps } from '@/types';
-import { ProjectBoard, Workspace, WorkspaceOption } from '@/types/delox';
-import { Link, usePage } from '@inertiajs/react';
+import {
+    AppNotification,
+    ProjectBoard,
+    Workspace,
+    WorkspaceOption,
+} from '@/types/delox';
+import { Link, usePage, usePoll } from '@inertiajs/react';
 import {
     ChevronDown,
     ChevronRight,
@@ -19,6 +25,8 @@ type ShellPageProps = PageProps<{
     workspace?: Pick<Workspace, 'id' | 'name' | 'slug'>;
     project?: ProjectBoard;
     canManageProjects?: boolean;
+    notifications: AppNotification[];
+    unreadNotificationsCount: number;
 }>;
 
 export default function AuthenticatedLayout({
@@ -26,6 +34,9 @@ export default function AuthenticatedLayout({
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const page = usePage<ShellPageProps>();
+    usePoll(30_000, {
+        only: ['notifications', 'unreadNotificationsCount'],
+    });
     const { auth } = page.props;
     const user = auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
@@ -264,6 +275,10 @@ export default function AuthenticatedLayout({
                             <Menu size={20} aria-hidden="true" />
                         )}
                     </button>
+
+                    <div className="shrink-0">
+                        <NotificationBell />
+                    </div>
                 </div>
 
                 {showingNavigationDropdown && (

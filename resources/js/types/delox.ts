@@ -48,6 +48,31 @@ export interface TaskComment {
     user: Pick<User, 'id' | 'name'>;
 }
 
+export interface AppNotification {
+    id: string;
+    data: {
+        event: string;
+        message: string;
+        project_id: number;
+        project_key: string;
+        task_id: number;
+        task_number: number;
+        task_title: string;
+    };
+    read_at: string | null;
+    created_at: string;
+}
+
+export interface ProjectActivity {
+    id: number;
+    action: string;
+    description: string;
+    task_id: number | null;
+    properties: Record<string, unknown> | null;
+    created_at: string;
+    user: Pick<User, 'id' | 'name'> | null;
+}
+
 export interface BoardTask {
     id: number;
     project_id: number;

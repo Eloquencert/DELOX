@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\ColumnController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectBoardController;
 use App\Http\Controllers\ProjectController;
@@ -23,6 +24,11 @@ Route::get('/', function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])
+        ->name('notifications.read');
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead'])
+        ->name('notifications.read-all');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('verified')
         ->name('dashboard');

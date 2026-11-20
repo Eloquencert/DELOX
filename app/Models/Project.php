@@ -40,4 +40,12 @@ class Project extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    /**
+     * @return HasMany<Activity, $this>
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(Activity::class);
+    }
 }

@@ -36,6 +36,7 @@ class Task extends Model
         return [
             'number' => 'integer',
             'due_date' => 'date',
+            'due_date_reminder_sent_at' => 'datetime',
         ];
     }
 
@@ -91,5 +92,13 @@ class Task extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(TaskComment::class);
+    }
+
+    /**
+     * @return HasMany<Activity, $this>
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(Activity::class);
     }
 }

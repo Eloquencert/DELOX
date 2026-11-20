@@ -39,6 +39,23 @@ class HandleInertiaRequests extends Middleware
                         ->get(['workspaces.id', 'name', 'slug'])
                     : [],
             ],
+            'notifications' => fn () => $request->user()
+                ? $request->user()->notifications()
+                    ->latest()
+                    ->orderByDesc('id')
+                    ->limit(8)
+                    ->get()
+                    ->map(fn ($notification): array => [
+                        'id' => $notification->getKey(),
+                        'data' => $notification->data,
+                        'read_at' => $notification->read_at?->toISOString(),
+                        'created_at' => $notification->created_at?->toISOString(),
+                    ])
+                    ->values()
+                : [],
+            'unreadNotificationsCount' => fn () => $request->user()
+                ? $request->user()->unreadNotifications()->count()
+                : 0,
             'flash' => [
                 'success' => fn (): ?string => $request->session()->get('success'),
             ],
