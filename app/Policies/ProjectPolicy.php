@@ -17,7 +17,7 @@ class ProjectPolicy
 
     public function create(User $user, Workspace $workspace): bool
     {
-        return $workspace->users()->whereKey($user->getKey())->exists();
+        return $this->canManageWorkspaceProjects($user, $workspace);
     }
 
     public function update(User $user, Project $project): bool
@@ -32,7 +32,12 @@ class ProjectPolicy
 
     private function canManageProject(User $user, Project $project): bool
     {
-        return $project->workspace->users()
+        return $this->canManageWorkspaceProjects($user, $project->workspace);
+    }
+
+    private function canManageWorkspaceProjects(User $user, Workspace $workspace): bool
+    {
+        return $workspace->users()
             ->whereKey($user->getKey())
             ->wherePivotIn('role', ['owner', 'admin'])
             ->exists();

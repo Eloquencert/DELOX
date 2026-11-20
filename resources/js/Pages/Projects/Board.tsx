@@ -23,14 +23,16 @@ import {
     sortableKeyboardCoordinates,
     horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Head, Link } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import axios from 'axios';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { Pencil, Trash2, X } from 'lucide-react';
 
 interface BoardPageProps {
     project: ProjectBoard;
     columns: BoardColumnType[];
     members: User[];
+    canManageProjects: boolean;
 }
 
 interface TaskEvent {
@@ -60,7 +62,12 @@ const priorityFilterStyles: Record<TaskPriority, string> = {
     urgent: 'bg-[#c96a50]/15 text-[#8f3822]',
 };
 
-export default function Board({ project, columns, members }: BoardPageProps) {
+export default function Board({
+    project,
+    columns,
+    members,
+    canManageProjects,
+}: BoardPageProps) {
     const boardColumns = useBoardStore((state) => state.columns);
     const activeTaskId = useBoardStore((state) => state.activeTaskId);
     const error = useBoardStore((state) => state.error);
@@ -84,6 +91,12 @@ export default function Board({ project, columns, members }: BoardPageProps) {
     const [assigneeFilter, setAssigneeFilter] = useState('all');
     const [newColumnName, setNewColumnName] = useState('');
     const [creatingColumn, setCreatingColumn] = useState(false);
+    const [editingProject, setEditingProject] = useState(false);
+    const projectForm = useForm({
+        name: project.name,
+        key: project.key,
+        description: project.description ?? '',
+    });
 
     useEffect(() => {
         setColumns(columns);
@@ -186,7 +199,7 @@ export default function Board({ project, columns, members }: BoardPageProps) {
         event.preventDefault();
         const name = newColumnName.trim();
 
-        if (!name || creatingColumn) {
+        if (!canManageProjects || !name || creatingColumn) {
             return;
         }
 
@@ -212,7 +225,7 @@ export default function Board({ project, columns, members }: BoardPageProps) {
     };
 
     const finishDrag = ({ active, over }: DragEndEvent) => {
-        if (!over || active.id === over.id) {
+        if (!canManageProjects || !over || active.id === over.id) {
             return;
         }
 
@@ -296,14 +309,37 @@ export default function Board({ project, columns, members }: BoardPageProps) {
         if (
             sourceColumn.id === destinationColumn.id &&
             sourceColumn.tasks.findIndex((task) => task.id === taskId) <
-                destinationColumn.tasks.findIndex(
-                    (task) => task.id === overData.taskId,
-                )
+            destinationColumn.tasks.findIndex(
+                (task) => task.id === overData.taskId,
+            )
         ) {
             destinationIndex += 1;
         }
 
         void moveTask(taskId, destinationColumnId, destinationIndex);
+    };
+
+    const saveProject = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        projectForm.transform((data) => ({
+            ...data,
+            key: data.key.trim().toUpperCase(),
+        }));
+        projectForm.patch(route('projects.update', { project: project.id }), {
+            onSuccess: () => setEditingProject(false),
+        });
+    };
+
+    const deleteProject = () => {
+        if (
+            !window.confirm(
+                `Delete "${project.name}" and all of its tasks? This cannot be undone.`,
+            )
+        ) {
+            return;
+        }
+
+        router.delete(route('projects.destroy', { project: project.id }));
     };
 
     return (
@@ -321,6 +357,26 @@ export default function Board({ project, columns, members }: BoardPageProps) {
                         </h1>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                        {canManageProjects && (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingProject(true)}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-3 py-2 text-sm font-semibold text-ink-body transition hover:border-sage hover:bg-sage/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/50"
+                                >
+                                    <Pencil size={15} aria-hidden="true" />
+                                    Edit project
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={deleteProject}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-[#c96a50]/30 px-3 py-2 text-sm font-semibold text-[#9f4633] transition hover:bg-[#c96a50]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c96a50]/30"
+                                >
+                                    <Trash2 size={15} aria-hidden="true" />
+                                    Delete project
+                                </button>
+                            </>
+                        )}
                         <label htmlFor="task-search" className="sr-only">
                             Search tasks
                         </label>
@@ -330,7 +386,7 @@ export default function Board({ project, columns, members }: BoardPageProps) {
                             value={search}
                             onChange={(event) => setSearch(event.target.value)}
                             placeholder="Search tasks..."
-                            className="w-44 rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body placeholder:text-ink-muted/70 focus:border-sage-hover focus:ring-sage/40"
+                            className="w-44 rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body placeholder:text-ink-muted/70 focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
                         />
                         <div
                             id="priority-filter"
@@ -357,13 +413,12 @@ export default function Board({ project, columns, members }: BoardPageProps) {
                                         onClick={() =>
                                             setPriorityFilter(priority)
                                         }
-                                        className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold capitalize transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage ${
-                                            isActive
+                                        className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold capitalize transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage ${isActive
                                                 ? priority === 'all'
                                                     ? 'bg-sage/30 text-ink'
                                                     : priorityFilterStyles[priority]
                                                 : 'text-ink-muted hover:bg-surface-subtle hover:text-ink-body'
-                                        }`}
+                                            }`}
                                     >
                                         {priority === 'all'
                                             ? 'All'
@@ -381,7 +436,7 @@ export default function Board({ project, columns, members }: BoardPageProps) {
                             onChange={(event) =>
                                 setAssigneeFilter(event.target.value)
                             }
-                            className="max-w-40 rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-sage-hover focus:ring-sage/40"
+                            className="max-w-40 rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
                         >
                             <option value="all">All assignees</option>
                             {members.map((member) => (
@@ -415,36 +470,43 @@ export default function Board({ project, columns, members }: BoardPageProps) {
                         <p className="text-xs text-ink-muted">
                             Keep work moving, together.
                         </p>
-                        <form
-                            onSubmit={createColumn}
-                            className="flex items-center gap-2"
-                        >
-                            <label htmlFor="new-column-name" className="sr-only">
-                                New column name
-                            </label>
-                            <input
-                                id="new-column-name"
-                                value={newColumnName}
-                                onChange={(event) =>
-                                    setNewColumnName(event.target.value)
-                                }
-                                placeholder="New column"
-                                maxLength={100}
-                                className="w-36 rounded-xl border border-[#dcd9d3] bg-white text-sm text-ink-body placeholder:text-ink-muted/70 focus:border-sage-hover focus:ring-sage/40"
-                            />
-                            <button
-                                type="submit"
-                                disabled={creatingColumn || !newColumnName.trim()}
-                                className="inline-flex items-center gap-2 rounded-xl bg-sage px-3.5 py-2.5 text-sm font-semibold text-ink transition hover:bg-sage-hover disabled:cursor-not-allowed disabled:opacity-40"
+                        {canManageProjects && (
+                            <form
+                                onSubmit={createColumn}
+                                className="flex items-center gap-2"
                             >
-                                <span aria-hidden="true">+</span>
-                                Add Column
-                            </button>
-                        </form>
+                                <label
+                                    htmlFor="new-column-name"
+                                    className="sr-only"
+                                >
+                                    New column name
+                                </label>
+                                <input
+                                    id="new-column-name"
+                                    value={newColumnName}
+                                    onChange={(event) =>
+                                        setNewColumnName(event.target.value)
+                                    }
+                                    placeholder="New column"
+                                    maxLength={100}
+                                    className="w-36 rounded-xl border border-[#dcd9d3] bg-white text-sm text-ink-body placeholder:text-ink-muted/70 focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={
+                                        creatingColumn || !newColumnName.trim()
+                                    }
+                                    className="inline-flex items-center gap-2 rounded-xl bg-sage px-3.5 py-2.5 text-sm font-semibold text-ink transition hover:bg-sage-hover disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    <span aria-hidden="true">+</span>
+                                    Add Column
+                                </button>
+                            </form>
+                        )}
                     </div>
 
                     <DndContext
-                        sensors={sensors}
+                        sensors={canManageProjects ? sensors : []}
                         collisionDetection={closestCorners}
                         onDragEnd={finishDrag}
                     >
@@ -461,6 +523,7 @@ export default function Board({ project, columns, members }: BoardPageProps) {
                                         column={column}
                                         projectId={project.id}
                                         projectKey={project.key}
+                                        canManage={canManageProjects}
                                         onOpenTask={(task) =>
                                             setActiveTaskId(task.id)
                                         }
@@ -482,11 +545,125 @@ export default function Board({ project, columns, members }: BoardPageProps) {
                 members={members}
                 projectKey={project.key}
                 columnName={selectedColumnName}
+                canManage={canManageProjects}
                 onClose={() => setActiveTaskId(null)}
                 onTaskUpdated={updateTask}
                 onTaskDeleted={removeTask}
                 onCommentAdded={addComment}
             />
+
+            {editingProject && (
+                <div
+                    className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/35 p-4 backdrop-blur-[2px]"
+                    role="presentation"
+                    onMouseDown={(event) => {
+                        if (event.target === event.currentTarget) {
+                            setEditingProject(false);
+                        }
+                    }}
+                >
+                    <section
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="edit-project-title"
+                        className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-2xl"
+                    >
+                        <header className="mb-5 flex items-start justify-between gap-4">
+                            <div>
+                                <h2
+                                    id="edit-project-title"
+                                    className="text-lg font-semibold text-ink"
+                                >
+                                    Edit project
+                                </h2>
+                                <p className="mt-1 text-sm text-ink-muted">
+                                    Update the name, key, or description.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setEditingProject(false)}
+                                className="rounded-lg p-2 text-ink-muted transition hover:bg-surface-subtle hover:text-ink"
+                                aria-label="Close project editor"
+                            >
+                                <X size={18} aria-hidden="true" />
+                            </button>
+                        </header>
+                        <form onSubmit={saveProject} className="space-y-4">
+                            <label className="block text-sm font-semibold text-ink-body">
+                                Name
+                                <input
+                                    value={projectForm.data.name}
+                                    onChange={(event) =>
+                                        projectForm.setData('name', event.target.value)
+                                    }
+                                    maxLength={255}
+                                    required
+                                    className="mt-1.5 w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
+                                />
+                                {projectForm.errors.name && (
+                                    <span role="alert" className="mt-1 block text-xs text-[#9f4633]">
+                                        {projectForm.errors.name}
+                                    </span>
+                                )}
+                            </label>
+                            <label className="block text-sm font-semibold text-ink-body">
+                                Key
+                                <input
+                                    value={projectForm.data.key}
+                                    onChange={(event) =>
+                                        projectForm.setData(
+                                            'key',
+                                            event.target.value.toUpperCase().slice(0, 6),
+                                        )
+                                    }
+                                    maxLength={6}
+                                    required
+                                    className="mt-1.5 w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] font-mono uppercase tabular-nums text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
+                                />
+                                {projectForm.errors.key && (
+                                    <span role="alert" className="mt-1 block text-xs text-[#9f4633]">
+                                        {projectForm.errors.key}
+                                    </span>
+                                )}
+                            </label>
+                            <label className="block text-sm font-semibold text-ink-body">
+                                Description
+                                <textarea
+                                    value={projectForm.data.description}
+                                    onChange={(event) =>
+                                        projectForm.setData('description', event.target.value)
+                                    }
+                                    rows={3}
+                                    maxLength={10000}
+                                    className="mt-1.5 w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
+                                />
+                                {projectForm.errors.description && (
+                                    <span role="alert" className="mt-1 block text-xs text-[#9f4633]">
+                                        {projectForm.errors.description}
+                                    </span>
+                                )}
+                            </label>
+                            <footer className="flex justify-end gap-2 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingProject(false)}
+                                    className="rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-ink-body transition hover:bg-surface-subtle"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={projectForm.processing}
+                                    className="rounded-xl bg-sage px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-sage-hover disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {projectForm.processing ? 'Saving...' : 'Save changes'}
+                                </button>
+                            </footer>
+                        </form>
+                    </section>
+                </div>
+            )}
         </AuthenticatedLayout>
     );
 }

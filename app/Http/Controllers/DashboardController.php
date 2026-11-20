@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,10 +23,17 @@ class DashboardController extends Controller
                 'projects' => fn ($query) => $query->withCount('tasks'),
             ])
             ->get();
+        $currentWorkspace = $workspaces->first();
 
         return Inertia::render('Dashboard', [
             'workspaces' => $workspaces,
-            'currentWorkspace' => $workspaces->first(),
+            'currentWorkspace' => $currentWorkspace,
+            'canDeleteWorkspace' => $currentWorkspace !== null
+                && $user->can('delete', $currentWorkspace),
+            'canManageMembers' => $currentWorkspace !== null
+                && $user->can('manageMembers', $currentWorkspace),
+            'canManageProjects' => $currentWorkspace !== null
+                && $user->can('create', [Project::class, $currentWorkspace]),
         ]);
     }
 }

@@ -17,22 +17,30 @@ class ColumnPolicy
 
     public function create(User $user, Project $project): bool
     {
-        return $project->workspace->users()->whereKey($user->getKey())->exists();
+        return $this->canManageProject($user, $project);
     }
 
     public function update(User $user, Column $column): bool
     {
-        return $this->isMember($user, $column);
+        return $this->canManageProject($user, $column->project);
     }
 
     public function move(User $user, Column $column): bool
     {
-        return $this->isMember($user, $column);
+        return $this->canManageProject($user, $column->project);
     }
 
     public function delete(User $user, Column $column): bool
     {
-        return $this->isMember($user, $column);
+        return $this->canManageProject($user, $column->project);
+    }
+
+    private function canManageProject(User $user, Project $project): bool
+    {
+        return $project->workspace->users()
+            ->whereKey($user->getKey())
+            ->wherePivotIn('role', ['owner', 'admin'])
+            ->exists();
     }
 
     private function isMember(User $user, Column $column): bool

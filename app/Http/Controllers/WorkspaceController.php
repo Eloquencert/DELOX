@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWorkspaceRequest;
+use App\Models\Project;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
@@ -33,6 +34,9 @@ class WorkspaceController extends Controller
         return Inertia::render('Dashboard', [
             'workspaces' => $workspaces,
             'currentWorkspace' => $workspaces->firstWhere('id', $workspace->getKey()),
+            'canDeleteWorkspace' => $request->user()->can('delete', $workspace),
+            'canManageMembers' => $request->user()->can('manageMembers', $workspace),
+            'canManageProjects' => $request->user()->can('create', [Project::class, $workspace]),
         ]);
     }
 
@@ -49,6 +53,15 @@ class WorkspaceController extends Controller
         ]);
 
         return to_route('workspaces.show', $workspace);
+    }
+
+    public function destroy(Workspace $workspace): RedirectResponse
+    {
+        $this->authorize('delete', $workspace);
+
+        $workspace->delete();
+
+        return to_route('dashboard')->with('success', 'Workspace deleted.');
     }
 
     public function members(Request $request, Workspace $workspace): Response

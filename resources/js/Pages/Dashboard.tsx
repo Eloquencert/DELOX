@@ -1,19 +1,25 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps } from '@/types';
 import { Workspace } from '@/types/delox';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowUpRight, FolderKanban, Plus, Users } from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { ArrowUpRight, FolderKanban, Plus, Trash2, Users } from 'lucide-react';
 import { FormEvent, useRef } from 'react';
 
 interface DashboardProps extends PageProps {
     workspaces: Workspace[];
     currentWorkspace: Workspace | null;
+    canDeleteWorkspace: boolean;
+    canManageMembers: boolean;
+    canManageProjects: boolean;
 }
 
 export default function Dashboard({
     auth,
     workspaces,
     currentWorkspace,
+    canDeleteWorkspace,
+    canManageMembers,
+    canManageProjects,
 }: DashboardProps) {
     const workspaceForm = useForm({ name: '' });
     const projectForm = useForm({ name: '', key: '', description: '' });
@@ -40,6 +46,21 @@ export default function Dashboard({
         projectForm.post(
             route('projects.store', { workspace: currentWorkspace.id }),
             { onSuccess: () => projectForm.reset() },
+        );
+    };
+
+    const deleteWorkspace = () => {
+        if (
+            !currentWorkspace ||
+            !window.confirm(
+                `Delete "${currentWorkspace.name}" and all of its projects? This cannot be undone.`,
+            )
+        ) {
+            return;
+        }
+
+        router.delete(
+            route('workspaces.destroy', { workspace: currentWorkspace.id }),
         );
     };
 
@@ -104,7 +125,7 @@ export default function Dashboard({
                             }
                             maxLength={255}
                             placeholder="Workspace name"
-                            className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body placeholder:text-ink-muted/70 focus:border-sage-hover focus:ring-sage/40"
+                            className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body placeholder:text-ink-muted/70 focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
                             required
                         />
                         {workspaceForm.errors.name && (
@@ -139,7 +160,7 @@ export default function Dashboard({
                                     </p>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <Link
+                                    {canManageMembers && <Link
                                         href={route('workspaces.members', {
                                             workspace: currentWorkspace.id,
                                         })}
@@ -153,8 +174,17 @@ export default function Dashboard({
                                         <span className="hidden sm:inline">
                                             · Invite
                                         </span>
-                                    </Link>
-                                    
+                                    </Link>}
+                                    {canDeleteWorkspace && (
+                                        <button
+                                            type="button"
+                                            onClick={deleteWorkspace}
+                                            className="inline-flex items-center gap-2 rounded-xl border border-[#c96a50]/30 px-3.5 py-2.5 text-sm font-semibold text-[#9f4633] transition hover:bg-[#c96a50]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c96a50]/30"
+                                        >
+                                            <Trash2 size={16} aria-hidden="true" />
+                                            Delete workspace
+                                        </button>
+                                    )}
                                 </div>
                             </header>
 
@@ -247,37 +277,42 @@ export default function Dashboard({
                                         />
                                     </span>
                                     <h3 className="mt-4 text-base font-semibold text-ink">
-                                        Your first project starts here
+                                        {canManageProjects
+                                            ? 'Your first project starts here'
+                                            : 'No projects yet'}
                                     </h3>
                                     <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-muted">
-                                        Create a project to give your team a
-                                        clear place for tasks, ideas, and
-                                        progress.
+                                        {canManageProjects
+                                            ? 'Create a project to give your team a clear place for tasks, ideas, and progress.'
+                                            : 'Projects created for this workspace will appear here.'}
                                     </p>
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            projectFormRef.current?.scrollIntoView(
-                                                {
-                                                    behavior: 'smooth',
-                                                    block: 'center',
-                                                },
-                                            )
-                                        }
-                                        className="mt-5 inline-flex items-center gap-2 rounded-xl bg-sage px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-sage-hover"
-                                    >
-                                        <Plus size={16} aria-hidden="true" />
-                                        Create first project
-                                    </button>
+                                    {canManageProjects && (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                projectFormRef.current?.scrollIntoView(
+                                                    {
+                                                        behavior: 'smooth',
+                                                        block: 'center',
+                                                    },
+                                                )
+                                            }
+                                            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-sage px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-sage-hover"
+                                        >
+                                            <Plus size={16} aria-hidden="true" />
+                                            Create first project
+                                        </button>
+                                    )}
                                 </div>
                             )}
 
-                            <form
-                                id="new-project"
-                                ref={projectFormRef}
-                                onSubmit={createProject}
-                                className="space-y-5 rounded-2xl border border-border bg-white p-5 shadow-[0_2px_12px_rgba(31,36,33,0.04)] sm:p-6"
-                            >
+                            {canManageProjects && (
+                                <form
+                                    id="new-project"
+                                    ref={projectFormRef}
+                                    onSubmit={createProject}
+                                    className="space-y-5 rounded-2xl border border-border bg-white p-5 shadow-[0_2px_12px_rgba(31,36,33,0.04)] sm:p-6"
+                                >
                                 <div>
                                     <h2 className="text-base font-semibold text-ink">
                                         Create a project
@@ -299,7 +334,7 @@ export default function Dashboard({
                                             }
                                             maxLength={255}
                                             required
-                                            className="mt-1.5 w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-sage-hover focus:ring-sage/40"
+                                            className="mt-1.5 w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
                                         />
                                         {projectForm.errors.name && (
                                             <span className="mt-1 block text-xs text-[#9f4633]">
@@ -321,7 +356,7 @@ export default function Dashboard({
                                             }
                                             maxLength={6}
                                             required
-                                            className="mt-1.5 w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] font-mono uppercase tabular-nums text-ink-body focus:border-sage-hover focus:ring-sage/40"
+                                            className="mt-1.5 w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] font-mono uppercase tabular-nums text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
                                         />
                                         {projectForm.errors.key && (
                                             <span className="mt-1 block text-xs text-[#9f4633]">
@@ -342,7 +377,7 @@ export default function Dashboard({
                                         }
                                         rows={3}
                                         maxLength={10000}
-                                        className="mt-1.5 w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-sage-hover focus:ring-sage/40"
+                                        className="mt-1.5 w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
                                     />
                                 </label>
                                 {projectForm.errors.description && (
@@ -360,7 +395,8 @@ export default function Dashboard({
                                         ? 'Creating...'
                                         : 'Create project'}
                                 </button>
-                            </form>
+                                </form>
+                            )}
                         </>
                     ) : (
                         <div className="rounded-2xl border border-dashed border-sage/70 bg-white/70 p-10 text-center">

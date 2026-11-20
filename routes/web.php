@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::post('/workspaces', [WorkspaceController::class, 'store'])->name('workspaces.store');
+    Route::delete('/workspaces/{workspace}', [WorkspaceController::class, 'destroy'])
+        ->name('workspaces.destroy');
     Route::get('/workspaces/{workspace}', [WorkspaceController::class, 'show'])
         ->name('workspaces.show');
     Route::get('/workspaces/{workspace}/members', [WorkspaceController::class, 'members'])
@@ -47,6 +49,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/workspaces/{workspace}/projects', [ProjectController::class, 'store'])
         ->name('projects.store');
+    Route::patch('/projects/{project}', [ProjectController::class, 'update'])
+        ->name('projects.update');
+    Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])
+        ->name('projects.destroy');
     Route::get('/projects/{project}/board', [ProjectBoardController::class, 'show'])
         ->name('projects.board');
 

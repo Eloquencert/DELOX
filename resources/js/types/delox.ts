@@ -12,6 +12,9 @@ export interface WorkspaceOption {
     id: number;
     name: string;
     slug: string;
+    pivot?: {
+        role: WorkspaceRole;
+    };
 }
 
 export interface WorkspaceProject {
@@ -74,6 +77,7 @@ export interface ProjectBoard {
     id: number;
     name: string;
     key: string;
+    description: string | null;
     workspace_id: number;
 }
 

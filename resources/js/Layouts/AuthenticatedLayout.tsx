@@ -18,6 +18,7 @@ type ShellPageProps = PageProps<{
     currentWorkspace?: Workspace | null;
     workspace?: Pick<Workspace, 'id' | 'name' | 'slug'>;
     project?: ProjectBoard;
+    canManageProjects?: boolean;
 }>;
 
 export default function AuthenticatedLayout({
@@ -40,6 +41,15 @@ export default function AuthenticatedLayout({
         ) ??
         auth.workspaces[0] ??
         null;
+    const currentWorkspaceOption = currentWorkspace
+        ? auth.workspaces.find(
+              (workspace: WorkspaceOption) =>
+                  workspace.id === currentWorkspace.id,
+          )
+        : null;
+    const canManageProjects =
+        page.props.canManageProjects ??
+        ['owner', 'admin'].includes(currentWorkspaceOption?.pivot?.role ?? '');
 
     useEffect(() => {
         const connection = window.Echo?.connector.pusher.connection;
@@ -193,13 +203,13 @@ export default function AuthenticatedLayout({
                             />
                             {realtimeConnected ? 'Live' : 'Offline'}
                         </span>
-                        <Link
+                        {canManageProjects && <Link
                             href={`${route('dashboard')}#new-project`}
                             className="inline-flex items-center gap-2 rounded-xl bg-sage px-3.5 py-2 text-sm font-semibold text-ink transition hover:bg-sage-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/60 focus-visible:ring-offset-2"
                         >
                             <Plus size={16} aria-hidden="true" />
                             New project
-                        </Link>
+                        </Link>}
                         <Dropdown>
                             <Dropdown.Trigger>
                                 <button
@@ -276,12 +286,12 @@ export default function AuthenticatedLayout({
                             >
                                 Workspace overview
                             </Link>
-                            <Link
+                            {canManageProjects && <Link
                                 href={`${route('dashboard')}#new-project`}
                                 className="rounded-xl px-3 py-2.5 text-sm font-medium text-ink-body hover:bg-sage/15"
                             >
                                 New project
-                            </Link>
+                            </Link>}
                             <Link
                                 href={route('profile.edit')}
                                 className="rounded-xl px-3 py-2.5 text-sm font-medium text-ink-body hover:bg-sand/15"

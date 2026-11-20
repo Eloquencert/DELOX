@@ -26,7 +26,7 @@ class WorkspacePolicy
 
     public function update(User $user, Workspace $workspace): bool
     {
-        return $this->hasRole($user, $workspace, ['owner', 'admin']);
+        return (int) $workspace->owner_id === (int) $user->getKey();
     }
 
     public function delete(User $user, Workspace $workspace): bool
@@ -36,17 +36,6 @@ class WorkspacePolicy
 
     public function manageMembers(User $user, Workspace $workspace): bool
     {
-        return $this->hasRole($user, $workspace, ['owner', 'admin']);
-    }
-
-    /**
-     * @param  list<string>  $roles
-     */
-    private function hasRole(User $user, Workspace $workspace, array $roles): bool
-    {
-        return $workspace->users()
-            ->whereKey($user->getKey())
-            ->wherePivotIn('role', $roles)
-            ->exists();
+        return (int) $workspace->owner_id === (int) $user->getKey();
     }
 }

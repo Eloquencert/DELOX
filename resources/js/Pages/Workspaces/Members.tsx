@@ -81,7 +81,7 @@ function MemberRow({
                             updateRole(event.target.value as WorkspaceRole)
                         }
                         disabled={updating}
-                        className="rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-sage-hover focus:ring-sage/40"
+                        className="rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
                     >
                         <option value="admin">Admin</option>
                         <option value="member">Member</option>
@@ -163,7 +163,7 @@ export default function Members({
                                 }
                                 placeholder="Add a registered user by email"
                                 required
-                                className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body placeholder:text-ink-muted/70 focus:border-sage-hover focus:ring-sage/40"
+                                className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body placeholder:text-ink-muted/70 focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
                             />
                             {form.errors.email && (
                                 <p role="alert" className="mt-1 text-xs text-red-600">
@@ -184,7 +184,7 @@ export default function Members({
                                         event.target.value as WorkspaceRole,
                                     )
                                 }
-                                className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-sage-hover focus:ring-sage/40"
+                                className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
                             >
                                 <option value="member">Member</option>
                                 <option value="admin">Admin</option>

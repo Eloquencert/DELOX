@@ -13,12 +13,14 @@ const priorityStyles: Record<BoardTask['priority'], string> = {
 interface TaskCardProps {
     task: BoardTask;
     projectKey: string;
+    canDrag: boolean;
     onOpen: (task: BoardTask) => void;
 }
 
 export default function TaskCard({
     task,
     projectKey,
+    canDrag,
     onOpen,
 }: TaskCardProps) {
     const {
@@ -31,6 +33,7 @@ export default function TaskCard({
     } = useSortable({
         id: `task-${task.id}`,
         data: { type: 'task', taskId: task.id, columnId: task.column_id },
+        disabled: !canDrag,
     });
 
     return (

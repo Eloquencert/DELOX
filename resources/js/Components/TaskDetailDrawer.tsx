@@ -7,6 +7,7 @@ interface TaskDetailDrawerProps {
     members: User[];
     projectKey: string;
     columnName: string;
+    canManage: boolean;
     onClose: () => void;
     onTaskUpdated: (task: BoardTask) => void;
     onTaskDeleted: (taskId: number) => void;
@@ -18,6 +19,7 @@ export default function TaskDetailDrawer({
     members,
     projectKey,
     columnName,
+    canManage,
     onClose,
     onTaskUpdated,
     onTaskDeleted,
@@ -176,36 +178,46 @@ export default function TaskDetailDrawer({
 
                 <div className="flex flex-1 flex-col">
                     <div className="flex-1 space-y-6 px-6 py-6">
-                        <label className="block">
-                            <span className="sr-only">Task title</span>
-                            <input
+                        {canManage ? (
+                            <label className="block">
+                                <span className="sr-only">Task title</span>
+                                <input
+                                    id="task-drawer-title"
+                                    value={title}
+                                    onChange={(event) => setTitle(event.target.value)}
+                                    maxLength={255}
+                                    required
+                                    className="w-full border-0 bg-transparent p-0 text-2xl font-semibold tracking-tight text-ink placeholder:text-ink-muted/60 focus:outline-none focus:ring-0"
+                                />
+                            </label>
+                        ) : (
+                            <h1
                                 id="task-drawer-title"
-                                value={title}
-                                onChange={(event) => setTitle(event.target.value)}
-                                maxLength={255}
-                                required
-                                className="w-full border-0 bg-transparent p-0 text-2xl font-semibold tracking-tight text-ink placeholder:text-ink-muted/60 focus:ring-0"
-                            />
-                        </label>
+                                className="text-2xl font-semibold tracking-tight text-ink"
+                            >
+                                {task.title}
+                            </h1>
+                        )}
 
-                        <label className="block">
+                        <div>
                             <span className="mb-2 block text-xs font-bold uppercase tracking-[0.12em] text-ink-muted">
                                 Description
                             </span>
-                            <textarea
-                                value={description}
-                                onChange={(event) => setDescription(event.target.value)}
-                                rows={5}
-                                maxLength={20000}
-                                placeholder="Add details or notes..."
-                                className="w-full resize-y rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm leading-6 text-ink-body focus:border-sage-hover focus:ring-sage/40"
-                            />
-                            {description && (
-                                <p className="mt-2 whitespace-pre-wrap rounded-xl bg-surface-subtle p-3 text-sm leading-6 text-ink-body">
-                                    {description}
+                            {canManage ? (
+                                <textarea
+                                    value={description}
+                                    onChange={(event) => setDescription(event.target.value)}
+                                    rows={5}
+                                    maxLength={20000}
+                                    placeholder="Add details or notes..."
+                                    className="w-full resize-y rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm leading-6 text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
+                                />
+                            ) : (
+                                <p className="whitespace-pre-wrap text-sm leading-6 text-ink-body">
+                                    {task.description || 'No description.'}
                                 </p>
                             )}
-                        </label>
+                        </div>
 
                         <div className="grid gap-3 sm:grid-cols-2">
                             <div className="rounded-xl border border-border bg-surface-subtle p-3">
@@ -216,54 +228,72 @@ export default function TaskDetailDrawer({
                                     {columnName}
                                 </p>
                             </div>
-                            <label className="block">
+                            <div className="block">
                                 <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-muted">
                                     Priority
                                 </span>
-                                <select
-                                    value={priority}
-                                    onChange={(event) =>
-                                        setPriority(event.target.value as TaskPriority)
-                                    }
-                                    className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm capitalize text-ink-body focus:border-sage-hover focus:ring-sage/40"
-                                >
-                                    {(['low', 'medium', 'high', 'urgent'] as const).map(
-                                        (option) => (
-                                            <option key={option} value={option}>
-                                                {option}
-                                            </option>
-                                        ),
-                                    )}
-                                </select>
-                            </label>
-                            <label className="block">
+                                {canManage ? (
+                                    <select
+                                        value={priority}
+                                        onChange={(event) =>
+                                            setPriority(event.target.value as TaskPriority)
+                                        }
+                                        className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm capitalize text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
+                                    >
+                                        {(['low', 'medium', 'high', 'urgent'] as const).map(
+                                            (option) => (
+                                                <option key={option} value={option}>
+                                                    {option}
+                                                </option>
+                                            ),
+                                        )}
+                                    </select>
+                                ) : (
+                                    <p className="text-sm capitalize text-ink-body">
+                                        {task.priority}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="block">
                                 <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-muted">
                                     Assignee
                                 </span>
-                                <select
-                                    value={assigneeId}
-                                    onChange={(event) => setAssigneeId(event.target.value)}
-                                    className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-sage-hover focus:ring-sage/40"
-                                >
-                                    <option value="">Unassigned</option>
-                                    {members.map((member) => (
-                                        <option key={member.id} value={member.id}>
-                                            {member.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-                            <label className="block">
+                                {canManage ? (
+                                    <select
+                                        value={assigneeId}
+                                        onChange={(event) => setAssigneeId(event.target.value)}
+                                        className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
+                                    >
+                                        <option value="">Unassigned</option>
+                                        {members.map((member) => (
+                                            <option key={member.id} value={member.id}>
+                                                {member.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <p className="text-sm text-ink-body">
+                                        {task.assignee?.name ?? 'Unassigned'}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="block">
                                 <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-muted">
                                     Due date
                                 </span>
-                                <input
-                                    type="date"
-                                    value={dueDate}
-                                    onChange={(event) => setDueDate(event.target.value)}
-                                    className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm tabular-nums text-ink-body focus:border-sage-hover focus:ring-sage/40"
-                                />
-                            </label>
+                                {canManage ? (
+                                    <input
+                                        type="date"
+                                        value={dueDate}
+                                        onChange={(event) => setDueDate(event.target.value)}
+                                        className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm tabular-nums text-ink-body focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
+                                    />
+                                ) : (
+                                    <p className="text-sm tabular-nums text-ink-body">
+                                        {task.due_date ?? 'No due date'}
+                                    </p>
+                                )}
+                            </div>
                         </div>
 
                         <section aria-labelledby="activity-heading" className="space-y-4">
@@ -293,10 +323,12 @@ export default function TaskDetailDrawer({
                             ))}
                             {task.comments.length === 0 && (
                                 <p className="rounded-xl border border-dashed border-border px-4 py-5 text-center text-sm text-ink-muted">
-                                    No comments yet. Start the conversation.
+                                    {canManage
+                                        ? 'No comments yet. Start the conversation.'
+                                        : 'No comments yet.'}
                                 </p>
                             )}
-                            <form onSubmit={addComment} className="space-y-2">
+                            {canManage && <form onSubmit={addComment} className="space-y-2">
                                 <label htmlFor="task-comment" className="sr-only">
                                     Add a comment
                                 </label>
@@ -307,7 +339,7 @@ export default function TaskDetailDrawer({
                                     rows={3}
                                     maxLength={10000}
                                     placeholder="Write a comment..."
-                                    className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body placeholder:text-ink-muted/70 focus:border-sage-hover focus:ring-sage/40"
+                                    className="w-full rounded-xl border border-[#dcd9d3] bg-[#faf9f7] text-sm text-ink-body placeholder:text-ink-muted/70 focus:border-[#d3cec5] focus:outline-none focus:ring-1 focus:ring-[#e8e4de]"
                                 />
                                 <div className="flex justify-end">
                                     <button
@@ -318,17 +350,17 @@ export default function TaskDetailDrawer({
                                         Post comment
                                     </button>
                                 </div>
-                            </form>
+                            </form>}
                         </section>
 
-                        {error && (
+                        {canManage && error && (
                             <p role="alert" className="rounded-xl bg-[#c96a50]/10 px-3 py-2 text-sm text-[#8f3822]">
                                 {error}
                             </p>
                         )}
                     </div>
 
-                    <footer className="sticky bottom-0 flex items-center justify-between border-t border-border bg-white/95 px-6 py-4 backdrop-blur">
+                    {canManage && <footer className="sticky bottom-0 flex items-center justify-between border-t border-border bg-white/95 px-6 py-4 backdrop-blur">
                         <button
                             type="button"
                             disabled={saving}
@@ -345,7 +377,7 @@ export default function TaskDetailDrawer({
                         >
                             {saving ? 'Saving...' : 'Save changes'}
                         </button>
-                    </footer>
+                    </footer>}
                 </div>
             </aside>
         </div>

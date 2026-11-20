@@ -152,4 +152,56 @@ class BoardMutationTest extends TestCase
             'title' => 'Unauthorized',
         ]);
     }
+
+    public function test_workspace_member_cannot_mutate_tasks_or_columns(): void
+    {
+        $workspace = Workspace::factory()->create();
+        $member = User::factory()->create();
+        $workspace->users()->attach($member, ['role' => 'member']);
+        $project = Project::factory()->for($workspace)->create();
+        $column = Column::factory()->for($project)->create(['position' => 'a0']);
+        $otherColumn = Column::factory()->for($project)->create(['position' => 'a1']);
+        $task = Task::factory()->forProject($project, $column)->create();
+
+        $this->actingAs($member)->postJson(route('tasks.store', $project), [
+            'column_id' => $column->getKey(),
+            'title' => 'Member task',
+            'priority' => 'medium',
+        ])->assertForbidden();
+
+        $this->patchJson(route('tasks.update', $task), [
+            'title' => 'Changed by member',
+        ])->assertForbidden();
+
+        $this->patchJson(route('tasks.move', $task), [
+            'column_id' => $otherColumn->getKey(),
+        ])->assertForbidden();
+
+        $this->deleteJson(route('tasks.destroy', $task))->assertForbidden();
+
+        $this->postJson(route('tasks.comments.store', $task), [
+            'body' => 'Member comment',
+        ])->assertForbidden();
+
+        $this->postJson(route('columns.store', $project), [
+            'name' => 'Member column',
+        ])->assertForbidden();
+
+        $this->patchJson(route('columns.move', $column), [
+            'prev_id' => $otherColumn->getKey(),
+        ])->assertForbidden();
+
+        $this->deleteJson(route('columns.destroy', $column))->assertForbidden();
+
+        $this->assertDatabaseHas('tasks', [
+            'id' => $task->getKey(),
+            'title' => $task->title,
+            'column_id' => $column->getKey(),
+        ]);
+        $this->assertDatabaseMissing('task_comments', [
+            'task_id' => $task->getKey(),
+            'body' => 'Member comment',
+        ]);
+        $this->assertDatabaseMissing('columns', ['name' => 'Member column']);
+    }
 }
